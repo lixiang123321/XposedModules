@@ -1,0 +1,7 @@
+1. modules 编写
+	a. wifi bssid, ok
+	b. gbs, 暂未发现使用, 待完善
+
+2. app
+	a. 启动后扫描wifi, 展示特定wifi的bssid（更新时间排序）
+	b. 维护界面，维护ssid，维护bssid（json/文件存储）, ok

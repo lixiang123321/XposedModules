@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">XposedModules</string>
+
+
+    <string name="ssid">SSID</string>
+    <string name="bssid">BSSID</string>
+    <string name="bssids">BSSIDS</string>
+    <string name="please_enter_ssid">enter ssid</string>
+    <string name="please_enter_bssid">enter bssid or select below</string>
+    <string name="select">select</string>
+    <string name="act_config_empty_selection">empty selection!</string>
+
+
+</resources>
