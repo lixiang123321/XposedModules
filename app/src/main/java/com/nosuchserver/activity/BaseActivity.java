@@ -6,7 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Window;
 
-import com.nosuchserver.xposedmodules.utils.TagLog;
+import com.nosuchserver.utils.TagLog;
 
 
 /**

@@ -1,4 +1,4 @@
-package com.nosuchserver.xposedmodules.utils;
+package com.nosuchserver.utils;
 
 import android.util.Log;
 

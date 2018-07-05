@@ -1,15 +1,17 @@
 package com.nosuchserver.data;
 
 import android.os.Environment;
-import android.util.Log;
+import android.support.annotation.NonNull;
 
-import com.nosuchserver.xposedmodules.utils.TagLog;
+import com.nosuchserver.utils.TagLog;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
@@ -32,6 +34,18 @@ public class FileUtils {
         }
 
         FileInputStream fin = new FileInputStream(file);
+        String str = readInputStream(fin);
+
+        TagLog.i(TAG, "getStrFromFile() : " + " str = " + str + ",");
+        return str;
+    }
+
+    @NonNull
+    public static String readInputStream(InputStream fin) throws IOException {
+        if (null == fin) {
+            return "";
+        }
+
         BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
         StringBuilder sb = new StringBuilder();
         String line;
@@ -43,8 +57,6 @@ public class FileUtils {
         // close
         reader.close();
         fin.close();
-
-        TagLog.i(TAG, "getStrFromFile() : " + " str = " + str + ",");
         return str;
     }
 

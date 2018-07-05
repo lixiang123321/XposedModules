@@ -7,15 +7,17 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.nosuchserver.data.LocalDataIOUtils;
 import com.nosuchserver.data.LocalSavaDataBean;
+import com.nosuchserver.utils.TagLog;
 import com.nosuchserver.xposedmodules.R;
-import com.nosuchserver.xposedmodules.utils.TagLog;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,6 +36,8 @@ public class ConfigActivity extends BaseActivity {
     private EditText mEtBssid;
     private Spinner mSpinner;
     private View mBtnSelect;
+    private Button mBtnSaveConfig;
+    private ToggleButton mTbIsBssidRandomly;
     // data
     private LocalSavaDataBean mDataBean;
     private String mSpinnerSelectStr;
@@ -61,6 +65,9 @@ public class ConfigActivity extends BaseActivity {
         mEtBssid = findViewById(R.id.et_bssid);
         mSpinner = findViewById(R.id.spinner);
         mBtnSelect = findViewById(R.id.btn_select);
+        mBtnSaveConfig = findViewById(R.id.btn_save_config);
+        mTbIsBssidRandomly = findViewById(R.id.tb_is_select_bssid_randomly);
+
         setUpViews();
     }
 
@@ -85,6 +92,15 @@ public class ConfigActivity extends BaseActivity {
             }
         });
 
+        mBtnSaveConfig.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveConfigTofile();
+            }
+        });
+
+
+        mTbIsBssidRandomly.setChecked(mDataBean.isBssidRandomly());
 
     }
 
@@ -145,9 +161,8 @@ public class ConfigActivity extends BaseActivity {
     }
 
     // save data
-    @Override
-    protected void onPause() {
-        super.onPause();
+
+    private void saveConfigTofile() {
         String ssid = mEtSsid.getText().toString();
         String bssid = mEtBssid.getText().toString();
         if (!TextUtils.isEmpty(ssid) && !TextUtils.isEmpty(bssid)) {
@@ -156,6 +171,7 @@ public class ConfigActivity extends BaseActivity {
             }
             mDataBean.setSsid(ssid);
             mDataBean.setBssidSelect(bssid);
+            mDataBean.setBssidRandomly(mTbIsBssidRandomly.isChecked());
             LocalDataIOUtils.saveLocalDataToFile(mDataBean);
             Toast.makeText(mContext, "The new config will be effective after restart.",
                     Toast.LENGTH_LONG).show();

@@ -1,0 +1,84 @@
+{
+  "bssidGroup": [
+    {
+      "bssid": "01:23:45:67:19:62",
+      "recordTime": 1530589070917,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:1e:a2",
+      "recordTime": 1530589070917,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:1e:b2",
+      "recordTime": 1530589070917,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:16:92",
+      "recordTime": 1530589070917,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:18:e2",
+      "recordTime": 1530589070916,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:18:52",
+      "recordTime": 1530589070916,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:1f:62",
+      "recordTime": 1530589070916,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "38:22:d6:7f:c3:82",
+      "recordTime": 1530589070916,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:14:e2",
+      "recordTime": 1530589070916,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:18:42",
+      "recordTime": 1530589070916,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "38:22:d6:7f:c3:92",
+      "recordTime": 1530589070916,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:16:82",
+      "recordTime": 1530589070916,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:0e:22",
+      "recordTime": 1530589070916,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:16:22",
+      "recordTime": 1525941944167,
+      "ssid": "Test"
+    },
+    {
+      "bssid": "01:23:45:67:18:f2",
+      "recordTime": 1525941944167,
+      "ssid": "Test"
+    }
+  ],
+  "latitude": 23.12,
+  "longitude": 113.25,
+  "bssidRandomly":true,
+  "bssidSelect": "01:23:45:67:c3:92",
+  "ssid": "Test"
+}

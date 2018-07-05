@@ -9,6 +9,8 @@
     <string name="please_enter_bssid">enter bssid or select below</string>
     <string name="select">select</string>
     <string name="act_config_empty_selection">empty selection!</string>
+    <string name="save_config">save config to file</string>
+    <string name="is_select_bssid_randomly">is select bssid randomly</string>
 
 
 </resources>
