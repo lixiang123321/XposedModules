@@ -35,7 +35,7 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
     private static final String CLASS_WIFI_MANAGER = "android.net.wifi.WifiManager";
     private static final String METHOD_WIFI_MANAGER = "getScanResults";
     private static final String KEY_TARGET_SSID_DEFAULT = "LoveQ";
-    private static final String KEY_TARGET_BSSID_DEFAULT = "38:22:d6:89:1e:b2";//"38:22:d6:89:16:92";
+    private static final String KEY_TARGET_BSSID_DEFAULT = "01:23:45:67:1e:b2";
 
     private static String KEY_TARGET_SSID = getKeyTargetSsid();
 
