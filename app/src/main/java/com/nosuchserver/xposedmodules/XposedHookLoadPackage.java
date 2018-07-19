@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
+import com.nosuchserver.Constants;
 import com.nosuchserver.data.LocalDataIOUtils;
 import com.nosuchserver.data.LocalSavaDataBean;
 import com.nosuchserver.utils.TagLog;
@@ -37,8 +38,6 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
     private static final String KEY_TARGET_SSID_DEFAULT = "LoveQ";
     private static final String KEY_TARGET_BSSID_DEFAULT = "01:23:45:67:1e:b2";
 
-    private static String KEY_TARGET_SSID = getKeyTargetSsid();
-
     private static String getKeyTargetSsid() {
         LocalSavaDataBean localData = getLocalDataFromFile(LocalDataIOUtils.KEY_FILE_NAME);
         if (IS_MORE_LOG) {
@@ -51,8 +50,6 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
 
         return KEY_TARGET_SSID_DEFAULT;
     }
-
-    private static String KEY_TARGET_BSSID = getKeyTargetBssid();
 
     private static String getKeyTargetBssid() {
         LocalSavaDataBean localData = getLocalDataFromFile(LocalDataIOUtils.KEY_FILE_NAME);
@@ -68,7 +65,7 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
     }
 
     // key
-    public static final String KEY_PACKAGE_NAME = "com.example.rere.practice";
+    public static final String KEY_PACKAGE_NAME = Constants.KEY_PACKAGE_NAME;
     public static final String KEY_EXPOSED_VIRTUAL = "io.va.exposed/virtual";
     public static final String KEY_PREFIX_DATA_USER_0 = "/data/user/0/";
     public static final String KEY_PATH_SEPARATOR = "/";
@@ -162,13 +159,16 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
                     TagLog.x(TAG, "afterHookedMethod() : " + " param.getResult() = " + paramResult + ",");
                 }
 
+                String keyTargetSsid = getKeyTargetSsid();
+                String keyTargetBssid = getKeyTargetBssid();
+
                 boolean isHookSuccess = false;
                 boolean isHasTargetSSID = false;
                 if (paramResult instanceof List) {
                     for (Object o : ((List) (paramResult))) {
                         if (o instanceof ScanResult) {
                             isHookSuccess = true;
-                            if (KEY_TARGET_SSID.equals(((ScanResult) o).SSID)) {
+                            if (keyTargetSsid.equals(((ScanResult) o).SSID)) {
                                 isHasTargetSSID = true;
                             }
                         }
@@ -179,16 +179,16 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
                 TagLog.x(TAG, "afterHookedMethod() : " + " isHasTargetSSID = " + isHasTargetSSID + ",");
 
                 try {
-                    TagLog.x(TAG, "afterHookedMethod() : " + " KEY_TARGET_SSID = " + KEY_TARGET_SSID + ",");
-                    TagLog.x(TAG, "afterHookedMethod() : " + " KEY_TARGET_BSSID = " + KEY_TARGET_BSSID + ",");
+                    TagLog.x(TAG, "afterHookedMethod() : " + " KEY_TARGET_SSID = " + keyTargetSsid + ",");
+                    TagLog.x(TAG, "afterHookedMethod() : " + " KEY_TARGET_BSSID = " + keyTargetBssid + ",");
                 } catch (Exception e) {
                     TagLog.x(TAG, "afterHookedMethod() : " + e.getMessage());
                 }
 
                 if (isHookSuccess && !isHasTargetSSID) {
                     ScanResult scanResult0 = (ScanResult) ((List) paramResult).get(0);
-                    scanResult0.SSID = KEY_TARGET_SSID;
-                    scanResult0.BSSID = KEY_TARGET_BSSID;
+                    scanResult0.SSID = keyTargetSsid;
+                    scanResult0.BSSID = keyTargetBssid;
                 }
 
                 /*// remove all target SSID for test
