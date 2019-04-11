@@ -1,6 +1,7 @@
 package com.nosuchserver.data;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
@@ -66,10 +67,18 @@ public class LocalDataIOUtils {
     File getLocalDataDataFile() {
         TagLog.i(TAG, "getLocalDataDataFile() : ");
         Context context = OurApplication.getInstance();
+        return getLocalDataDataFile(context);
+    }
+
+    @NonNull
+    public static File getLocalDataDataFile(Context context) {
         File filesDir = context.getFilesDir();
-        TagLog.i(TAG, "getLocalDataDataFile() : " + " context = " + context + ","+ "filesDir: " + filesDir);
+        TagLog.i(TAG, "getLocalDataDataFile() : " + " context = " + context + "," + "filesDir: " + filesDir);
+        TagLog.x(TAG, "getLocalDataDataFile() : " + " context = " + context + "," + "filesDir: " + filesDir);
+
         File file = new File(filesDir.getAbsolutePath(), KEY_FILE_NAME);
         TagLog.i(TAG, "getLocalDataDataFile() : " + "file name : " + file.getAbsolutePath());
+        TagLog.x(TAG, "getLocalDataDataFile() : " + "file name : " + file.getAbsolutePath());
         return file;
     }
 

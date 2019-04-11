@@ -1,6 +1,8 @@
 package com.nosuchserver.xposedmodules;
 
+import android.content.Context;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
@@ -15,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.List;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -30,16 +33,28 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  */
 public class XposedHookLoadPackage implements IXposedHookLoadPackage {
 
+    // key
+    public static final String KEY_PACKAGE_NAME = Constants.KEY_PACKAGE_NAME;
+    public static final String KEY_EXPOSED_VIRTUAL = "io.va.exposed/virtual";
+    public static final String KEY_PREFIX_DATA_USER_0 = "/data/user/0/";
+    public static final String KEY_PATH_SEPARATOR = "/";
+    public static final String KEY_FILES = "files";
     private static final boolean IS_MORE_LOG = false;
 	private static final String TAG = XposedHookLoadPackage.class.getSimpleName();
     private static final String KEY_PACKAGE_NAMES_LIST = "com.example.rere.practice";
     private static final String CLASS_WIFI_MANAGER = "android.net.wifi.WifiManager";
     private static final String METHOD_WIFI_MANAGER = "getScanResults";
     private static final String KEY_TARGET_SSID_DEFAULT = "LoveQ";
-    private static final String KEY_TARGET_BSSID_DEFAULT = "01:23:45:67:1e:b2";
+    private static final String KEY_TARGET_BSSID_DEFAULT = "38:22:d6:89:1e:b2";//"38:22:d6:89:16:92";
 
-    private static String getKeyTargetSsid() {
-        LocalSavaDataBean localData = getLocalDataFromFile(LocalDataIOUtils.KEY_FILE_NAME);
+    private static String getKeyTargetSsid(Context context) {
+        LocalSavaDataBean localData;
+        if (null != context) {
+            localData = LocalDataIOUtils.readLocalDataFromFile(LocalDataIOUtils.getLocalDataDataFile(context));
+        } else {
+            localData = getLocalDataFromFile(LocalDataIOUtils.KEY_FILE_NAME);
+        }
+
         if (IS_MORE_LOG) {
             TagLog.x(TAG, "getKeyTargetSsid() : " + " localData = " + localData + ",");
         }
@@ -51,8 +66,13 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
         return KEY_TARGET_SSID_DEFAULT;
     }
 
-    private static String getKeyTargetBssid() {
-        LocalSavaDataBean localData = getLocalDataFromFile(LocalDataIOUtils.KEY_FILE_NAME);
+    private static String getKeyTargetBssid(Context context) {
+        LocalSavaDataBean localData;
+        if (null != context) {
+            localData = LocalDataIOUtils.readLocalDataFromFile(LocalDataIOUtils.getLocalDataDataFile(context));
+        } else {
+            localData = getLocalDataFromFile(LocalDataIOUtils.KEY_FILE_NAME);
+        }
         if (IS_MORE_LOG) {
             TagLog.x(TAG, "getKeyTargetBssid() : " + " localData = " + localData + ",");
         }
@@ -62,36 +82,6 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
         }
 
         return KEY_TARGET_BSSID_DEFAULT;
-    }
-
-    // key
-    public static final String KEY_PACKAGE_NAME = Constants.KEY_PACKAGE_NAME;
-    public static final String KEY_EXPOSED_VIRTUAL = "io.va.exposed/virtual";
-    public static final String KEY_PREFIX_DATA_USER_0 = "/data/user/0/";
-    public static final String KEY_PATH_SEPARATOR = "/";
-    public static final String KEY_FILES = "files";
-
-    @Override
-    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-        TagLog.x(TAG, "handleLoadPackage() : " + " lpparam = " + lpparam + ",");
-
-        if (!KEY_PACKAGE_NAMES_LIST.contains(lpparam.packageName)) {
-            TagLog.x(TAG, "handleLoadPackage() : not target package");
-            return;
-        }
-
-        // 18-7-5 add invalid controll
-        if (!ValidControlUtils.isValid()) {
-            return;
-        }
-
-        handleTargetApp(lpparam);
-    }
-
-    private void handleTargetApp(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-        TagLog.x(TAG, "handleTargetApp() : " + lpparam);
-        getAndHookWifi(lpparam);
-        HookEntry.hookAtLoadPackage(lpparam);
     }
 
     private static String readFileInXposed() throws Throwable {
@@ -125,6 +115,7 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
         return sb.toString();
     }
 
+    @Deprecated
     private static LocalSavaDataBean getLocalDataFromFile(String fileName) {
         TagLog.x(TAG, "getLocalDataFromFile() : " + " fileName = " + fileName + ",");
         LocalSavaDataBean localSavaDataBean = null;
@@ -145,6 +136,29 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
         return localSavaDataBean;
     }
 
+    @Override
+    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        TagLog.x(TAG, "handleLoadPackage() : " + " lpparam = " + lpparam + ",");
+
+        if (!KEY_PACKAGE_NAMES_LIST.contains(lpparam.packageName)) {
+            TagLog.x(TAG, "handleLoadPackage() : not target package");
+            return;
+        }
+
+        // 18-7-5 add invalid controll
+        if (!ValidControlUtils.isValid()) {
+//            return;
+        }
+
+        handleTargetApp(lpparam);
+    }
+
+    private void handleTargetApp(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        TagLog.x(TAG, "handleTargetApp() : " + lpparam);
+        getAndHookWifi(lpparam);
+        HookEntry.hookAtLoadPackage(lpparam);
+    }
+
     private void getAndHookWifi(XC_LoadPackage.LoadPackageParam lpparam) {
         XposedHelpers.findAndHookMethod(CLASS_WIFI_MANAGER, lpparam.classLoader, METHOD_WIFI_MANAGER, new XC_MethodHook() {
             @Override
@@ -154,13 +168,20 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
 
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                Context context = null;
+                try {
+                    context = getContext(param);
+                } catch (Exception e) {
+                    TagLog.x(TAG, "afterHookedMethod() : " + e.getMessage());
+                }
+
                 Object paramResult = param.getResult();
                 if (IS_MORE_LOG) {
                     TagLog.x(TAG, "afterHookedMethod() : " + " param.getResult() = " + paramResult + ",");
                 }
 
-                String keyTargetSsid = getKeyTargetSsid();
-                String keyTargetBssid = getKeyTargetBssid();
+                String keyTargetSsid = getKeyTargetSsid(context);
+                String keyTargetBssid = getKeyTargetBssid(context);
 
                 boolean isHookSuccess = false;
                 boolean isHasTargetSSID = false;
@@ -203,6 +224,31 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
                 if (IS_MORE_LOG) {
                     TagLog.x(TAG, "afterHookedMethod() : " + " param.getResult() = " + param.getResult() + ",");
                 }
+            }
+
+            private Context getContext(MethodHookParam param) throws Exception {
+                TagLog.x(TAG, "afterHookedMethod() : try get file location");
+                Object thisObject = param.thisObject;
+                if (thisObject instanceof WifiManager) {
+                    TagLog.x(TAG, "afterHookedMethod() : this object is WifiManager");
+
+                    Class clazz = WifiManager.class;
+                    Field mContext = clazz.getDeclaredField("mContext");
+                    mContext.setAccessible(true);
+                    Object o = mContext.get(thisObject);
+
+                    if (o instanceof Context) {
+                        TagLog.x(TAG, "afterHookedMethod() : get WifiManager's mContext");
+                        // LocalDataIOUtils.getLocalDataDataFile((Context) o);
+                        return (Context) o;
+                    } else {
+                        TagLog.x(TAG, "afterHookedMethod() : mContext is not Context");
+                    }
+
+                } else {
+                    TagLog.x(TAG, "afterHookedMethod() : this object is not WifiManager");
+                }
+                return null;
             }
         });
     }

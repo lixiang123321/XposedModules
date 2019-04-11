@@ -19,7 +19,7 @@ public class ValidControlUtils {
         Date date = new Date();
         Date deadline = new Date();
         try {
-            deadline = simpleDateFormat.parse("2018-08-03");
+            deadline = simpleDateFormat.parse("2018-09-07");
         } catch (ParseException e) {
             TagLog.e(TAG, "isValid() : " + e.getLocalizedMessage());
         }
