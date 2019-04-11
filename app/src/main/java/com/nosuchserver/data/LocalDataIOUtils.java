@@ -74,11 +74,11 @@ public class LocalDataIOUtils {
     public static File getLocalDataDataFile(Context context) {
         File filesDir = context.getFilesDir();
         TagLog.i(TAG, "getLocalDataDataFile() : " + " context = " + context + "," + "filesDir: " + filesDir);
-        TagLog.x(TAG, "getLocalDataDataFile() : " + " context = " + context + "," + "filesDir: " + filesDir);
+        //TagLog.x(TAG, "getLocalDataDataFile() : " + " context = " + context + "," + "filesDir: " + filesDir);
 
         File file = new File(filesDir.getAbsolutePath(), KEY_FILE_NAME);
         TagLog.i(TAG, "getLocalDataDataFile() : " + "file name : " + file.getAbsolutePath());
-        TagLog.x(TAG, "getLocalDataDataFile() : " + "file name : " + file.getAbsolutePath());
+        //TagLog.x(TAG, "getLocalDataDataFile() : " + "file name : " + file.getAbsolutePath());
         return file;
     }
 
