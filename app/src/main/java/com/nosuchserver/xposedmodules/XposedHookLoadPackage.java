@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -196,9 +197,18 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
                 String keyTargetSsid = getKeyTargetSsid(file);
                 String keyTargetBssid = getKeyTargetBssid(file);
 
+                try {
+                    TagLog.x(TAG, "afterHookedMethod() : " + " KEY_TARGET_SSID = " + keyTargetSsid + ",");
+                    TagLog.x(TAG, "afterHookedMethod() : " + " KEY_TARGET_BSSID = " + keyTargetBssid + ",");
+                } catch (Exception e) {
+                    TagLog.x(TAG, "afterHookedMethod() : " + e.getMessage());
+                }
+
                 boolean isHookSuccess = false;
                 boolean isHasTargetSSID = false;
                 if (paramResult instanceof List) {
+                    //TagLog.x(TAG, "afterHookedMethod() : " + " paramResult = " + paramResult + ",");
+                    //TagLog.x(TAG, "afterHookedMethod() : " + " paramResult instanceof ArrayList = " + (paramResult instanceof ArrayList) + ",");
                     for (Object o : ((List) (paramResult))) {
                         if (o instanceof ScanResult) {
                             isHookSuccess = true;
@@ -223,7 +233,27 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
                     ScanResult scanResult0 = (ScanResult) ((List) paramResult).get(0);
                     scanResult0.SSID = keyTargetSsid;
                     scanResult0.BSSID = keyTargetBssid;
+                } else if (!isHookSuccess) {
+                    // no list
+                    ArrayList<ScanResult> scanResults = new ArrayList<>();
+                    Class clazz = ScanResult.class;
+                    ScanResult o = (ScanResult) clazz.newInstance();
+                    o.SSID = keyTargetSsid;
+                    o.BSSID = keyTargetBssid;
+                    scanResults.add(o);
+                    param.setResult(scanResults);
                 }
+
+                // debug
+                /*if (true) {
+                    ArrayList<ScanResult> scanResults = new ArrayList<>();
+                    Class clazz = ScanResult.class;
+                    ScanResult o = (ScanResult) clazz.newInstance();
+                    o.SSID = keyTargetSsid;
+                    o.BSSID = keyTargetBssid;
+                    scanResults.add(o);
+                    param.setResult(scanResults);
+                }*/
 
                 /*// remove all target SSID for test
                 if (isHookSuccess && isHasTargetSSID) {
