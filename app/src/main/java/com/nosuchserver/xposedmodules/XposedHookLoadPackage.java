@@ -14,6 +14,7 @@ import com.nosuchserver.utils.TagLog;
 import com.nosuchserver.utils.ValidControlUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,6 +26,8 @@ import de.robv.android.xposed.SELinuxHelper;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+
+import static com.nosuchserver.data.LocalDataIOUtils.KEY_FILE_NAME;
 
 /**
  * Xposed modules entry
@@ -40,19 +43,20 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
     public static final String KEY_PATH_SEPARATOR = "/";
     public static final String KEY_FILES = "files";
     private static final boolean IS_MORE_LOG = false;
-	private static final String TAG = XposedHookLoadPackage.class.getSimpleName();
+    private static final String TAG = XposedHookLoadPackage.class.getSimpleName();
     private static final String KEY_PACKAGE_NAMES_LIST = "com.example.rere.practice";
+    private static final String KEY_PACKAGE_NAME_OF_CONFIG_APP = "com.nosuchserver.xposedmodules";
     private static final String CLASS_WIFI_MANAGER = "android.net.wifi.WifiManager";
     private static final String METHOD_WIFI_MANAGER = "getScanResults";
     private static final String KEY_TARGET_SSID_DEFAULT = "LoveQ";
     private static final String KEY_TARGET_BSSID_DEFAULT = "38:22:d6:89:1e:b2";//"38:22:d6:89:16:92";
 
-    private static String getKeyTargetSsid(Context context) {
+    private static String getKeyTargetSsid(File dataFile) {
         LocalSavaDataBean localData;
-        if (null != context) {
-            localData = LocalDataIOUtils.readLocalDataFromFile(LocalDataIOUtils.getLocalDataDataFile(context));
+        if (null != dataFile) {
+            localData = LocalDataIOUtils.readLocalDataFromFile(dataFile);
         } else {
-            localData = getLocalDataFromFile(LocalDataIOUtils.KEY_FILE_NAME);
+            localData = getLocalDataFromFile(KEY_FILE_NAME);
         }
 
         if (IS_MORE_LOG) {
@@ -66,12 +70,12 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
         return KEY_TARGET_SSID_DEFAULT;
     }
 
-    private static String getKeyTargetBssid(Context context) {
+    private static String getKeyTargetBssid(File dataFile) {
         LocalSavaDataBean localData;
-        if (null != context) {
-            localData = LocalDataIOUtils.readLocalDataFromFile(LocalDataIOUtils.getLocalDataDataFile(context));
+        if (null != dataFile) {
+            localData = LocalDataIOUtils.readLocalDataFromFile(dataFile);
         } else {
-            localData = getLocalDataFromFile(LocalDataIOUtils.KEY_FILE_NAME);
+            localData = getLocalDataFromFile(KEY_FILE_NAME);
         }
         if (IS_MORE_LOG) {
             TagLog.x(TAG, "getKeyTargetBssid() : " + " localData = " + localData + ",");
@@ -90,7 +94,7 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
         }
         String prefix = KEY_PREFIX_DATA_USER_0;
 
-        String fileName = prefix + KEY_EXPOSED_VIRTUAL + prefix + KEY_PACKAGE_NAME + KEY_PATH_SEPARATOR + KEY_FILES + KEY_PATH_SEPARATOR + LocalDataIOUtils.KEY_FILE_NAME;
+        String fileName = prefix + KEY_EXPOSED_VIRTUAL + prefix + KEY_PACKAGE_NAME + KEY_PATH_SEPARATOR + KEY_FILES + KEY_PATH_SEPARATOR + KEY_FILE_NAME;
         if (IS_MORE_LOG) {
             TagLog.x(TAG, "readFileInXposed() : " + " fileName = " + fileName + ",");
         }
@@ -159,7 +163,7 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
         HookEntry.hookAtLoadPackage(lpparam);
     }
 
-    private void getAndHookWifi(XC_LoadPackage.LoadPackageParam lpparam) {
+    private void getAndHookWifi(final XC_LoadPackage.LoadPackageParam lpparam) {
         XposedHelpers.findAndHookMethod(CLASS_WIFI_MANAGER, lpparam.classLoader, METHOD_WIFI_MANAGER, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -168,9 +172,18 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
 
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Context context = null;
+                // get file path
+                // know that context means the app be hooked. not the config app. replace the path.
+
+                File file = null;
                 try {
+                    Context context = null;
                     context = getContext(param);
+                    File filesDir = context.getFilesDir();
+                    TagLog.x(TAG, "afterHookedMethod() : " + " filesDir = " + filesDir + ",");
+                    String filePath = filesDir.getAbsolutePath().replace(("/" + lpparam.packageName), "/" + KEY_PACKAGE_NAME_OF_CONFIG_APP);
+                    file = new File(filePath, KEY_FILE_NAME);
+                    TagLog.x(TAG, "afterHookedMethod() : " + " file = " + file + ",");
                 } catch (Exception e) {
                     TagLog.x(TAG, "afterHookedMethod() : " + e.getMessage());
                 }
@@ -180,8 +193,8 @@ public class XposedHookLoadPackage implements IXposedHookLoadPackage {
                     TagLog.x(TAG, "afterHookedMethod() : " + " param.getResult() = " + paramResult + ",");
                 }
 
-                String keyTargetSsid = getKeyTargetSsid(context);
-                String keyTargetBssid = getKeyTargetBssid(context);
+                String keyTargetSsid = getKeyTargetSsid(file);
+                String keyTargetBssid = getKeyTargetBssid(file);
 
                 boolean isHookSuccess = false;
                 boolean isHasTargetSSID = false;
