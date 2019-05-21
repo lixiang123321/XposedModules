@@ -1,5 +1,6 @@
 package com.nosuchserver.xposedmodules;
 
+import android.location.Location;
 import android.view.View;
 
 import com.nosuchserver.utils.TagLog;
@@ -21,6 +22,8 @@ public class HookEntry {
     public static void hookAtLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         TagLog.x(TAG, "getAndHookDeviceInfo() : " + " lpparam = " + lpparam + ",");
         // hookViewGetIdForTest(lpparam);
+
+        hookLocation(lpparam);
     }
 
     private static void hookViewGetIdForTest(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -45,6 +48,32 @@ public class HookEntry {
             }
         });
 
+
+
+    }
+
+    private static void hookLocation(XC_LoadPackage.LoadPackageParam lpparam) {
+        TagLog.x(TAG, "hookLocation() : " + " lpparam = " + lpparam + ",");
+
+        final double latitude = 23.15792;
+        final double longtitude = 113.27324;
+
+        XC_MethodHook xc_methodHook = new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+            }
+
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                TagLog.x(TAG, "afterHookedMethod() : " + " param = " + param + ",");
+                TagLog.x(TAG, "afterHookedMethod() : " + " param.method.getName() = " + param.method.getName() + ",");
+
+                super.afterHookedMethod(param);
+            }
+        };
+        XposedHelpers.findAndHookMethod(Location.class, "getLatitude", xc_methodHook);
+        XposedHelpers.findAndHookMethod(Location.class, "getLongitude", xc_methodHook);
     }
 
     private static void hookTest() {
